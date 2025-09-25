@@ -4,24 +4,32 @@ import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 const LoginPage = () => {
   const { isLoaded, isSignedIn, user } = useUser();
-
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const role = user?.publicMetadata.role;
-
-    if (role) {
+    if (!isLoaded || !isSignedIn) return;
+    const role = user?.publicMetadata?.role;
+    if (
+      typeof role === "string" &&
+      role.trim() !== "" &&
+      role !== "undefined" &&
+      pathname !== `/${role}`
+    ) {
+      console.log("Redirecting to:", `/${role}`);
       router.push(`/${role}`);
+    } else {
+      console.log("Skipping redirect. Role is:", role);
     }
-  }, [user, router]);
+  }, [isLoaded, isSignedIn, user, router, pathname]);
 
   return (
-    <div className="h-screen flex items-center justify-center bg-lamaSkyLight">
+    <div className="h-screen flex items-center justify-center bg-SkyLight">
       <SignIn.Root>
         <SignIn.Step
           name="start"
@@ -29,7 +37,7 @@ const LoginPage = () => {
         >
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Image src="/logo.png" alt="" width={24} height={24} />
-            SchooLama
+            SoftHub
           </h1>
           <h2 className="text-gray-400">Sign in to your account</h2>
           <Clerk.GlobalError className="text-sm text-red-400" />
