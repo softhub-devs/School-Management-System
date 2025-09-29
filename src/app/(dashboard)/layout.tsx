@@ -16,7 +16,7 @@ export default function DashboardLayout({
           href="/"
           className="h-fit flex items-center justify-center w-full"
         >
-          <Image src="/logo.png" alt="logo" width={128} height={128} />
+          <Image src="/logo2.png" alt="logo" width={128} height={128} />
         </Link>
         <Menu />
       </div>
