@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 
 
 const ParentPage = async () => {
+
   const { userId } = await auth();
   const currentUserId = userId;
   

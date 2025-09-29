@@ -1,7 +1,11 @@
 import prisma from "@/lib/prisma";
 
-const EventList = async ({ dateParam }: { dateParam: string | undefined }) => {
-  const date = dateParam ? new Date(dateParam) : new Date();
+
+type File3Props = {
+  date: Date;
+};
+
+const EventList = async ({ date }: File3Props) => {
 
   const data = await prisma.event.findMany({
     where: {
@@ -20,7 +24,7 @@ const EventList = async ({ dateParam }: { dateParam: string | undefined }) => {
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-gray-600">{event.title}</h1>
         <span className="text-gray-300 text-xs">
-          {event.startTime.toLocaleTimeString("en-UK", {
+          {event.startTime.toLocaleTimeString("en-NP", {
             hour: "2-digit",
             minute: "2-digit",
             hour12: false,

@@ -21,10 +21,8 @@ const LoginPage = () => {
       role !== "undefined" &&
       pathname !== `/${role}`
     ) {
-      console.log("Redirecting to:", `/${role}`);
       router.push(`/${role}`);
     } else {
-      console.log("Skipping redirect. Role is:", role);
     }
   }, [isLoaded, isSignedIn, user, router, pathname]);
 

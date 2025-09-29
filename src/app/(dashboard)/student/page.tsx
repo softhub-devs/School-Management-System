@@ -3,6 +3,7 @@ import BigCalendarContainer from "@/components/BigCalendarContainer";
 import EventCalendar from "@/components/EventCalendar";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import CleanUrl from "@/components/CleanUrl";
 
 const StudentPage = async () => {
   const { userId } = await auth();
@@ -12,7 +13,8 @@ const StudentPage = async () => {
       students: { some: { id: userId! } },
     },
   });
-
+  
+  const date = new Date().toString();
   const classId = classItem.length > 0 ? classItem[0].id : undefined;
 
   return (

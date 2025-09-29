@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   title: "School Management System",
   description: "SMS by SoftHub@codewithujwal",
   icons: {
-    icon: "/logo.png", // <-- use 'icons', not 'icon'
-    apple: "/logo.png", // optional: for iOS devices
+    icon: "/logo.png", 
+    apple: "/logo.png",
   },
 };
 
