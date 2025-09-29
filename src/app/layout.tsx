@@ -10,8 +10,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "School Management Dashboard",
-  description: "Next.js School Management System",
+  title: "School Management System",
+  description: "SMS by SoftHub@codewithujwal",
+  icon: "/logo.png",
 };
 
 export default function RootLayout({

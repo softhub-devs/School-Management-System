@@ -4,36 +4,43 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model Admin {
-  id       String @id
-  username String @unique
+  id        String @id
+  username  String @unique
 }
 
 model Student {
-  id          String       @id
-  username    String       @unique
+  id          String         @id
+  username    String         @unique
   name        String
   surname     String
-  email       String?      @unique
-  phone       String?      @unique
+  email       String?        @unique
+  phone       String?        @unique
   address     String
   img         String?
   bloodType   String
   sex         UserSex
-  createdAt   DateTime     @default(now())
+  createdAt   DateTime       @default(now())
   parentId    String
-  parent      Parent       @relation(fields: [parentId], references: [id])
+  parent      Parent         @relation(fields: [parentId], references: [id])
   classId     Int
-  class       Class        @relation(fields: [classId], references: [id])
+  class       Class          @relation(fields: [classId], references: [id])
   gradeId     Int
-  grade       Grade        @relation(fields: [gradeId], references: [id])
+  grade       Grade          @relation(fields: [gradeId], references: [id])
   attendances Attendance[]
   results     Result[]
   birthday    DateTime
+
+  // --- INDEXES FOR STUDENT LISTS, SEARCH, AND JOINS ---
+  @@index([name])          // For searching student names quickly
+  @@index([surname])       // For searching student surnames
+  @@index([classId])       // For fetching all students in a class (crucial join key)
+  @@index([gradeId])       // For fetching all students in a grade (crucial join key)
+  @@index([parentId])      // For fetching a parent's children (crucial join key)
 }
 
 model Teacher {
@@ -52,6 +59,10 @@ model Teacher {
   lessons   Lesson[]
   classes   Class[]
   birthday  DateTime
+
+  // --- INDEXES FOR TEACHER LISTS AND SEARCH ---
+  @@index([name])          // For searching teacher names quickly
+  @@index([surname])       // For searching teacher surnames
 }
 
 model Parent {
@@ -64,20 +75,24 @@ model Parent {
   address   String
   createdAt DateTime  @default(now())
   students  Student[]
+
+  // --- INDEXES FOR PARENT LISTS AND SEARCH ---
+  @@index([name])          // For the search bar on the ParentListPage (essential fix)
+  @@index([phone])         // For common phone lookups
 }
 
 model Grade {
-  id    Int @id @default(autoincrement())
-  level Int @unique
+  id        Int      @id @default(autoincrement())
+  level     Int      @unique
 
-  students Student[]
-  classess Class[]
+  students  Student[]
+  classess  Class[]
 }
 
 model Class {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  capacity Int
+  id            Int            @id @default(autoincrement())
+  name          String         @unique
+  capacity      Int
 
   supervisorId  String?
   supervisor    Teacher?       @relation(fields: [supervisorId], references: [id])
@@ -87,76 +102,98 @@ model Class {
   grade         Grade          @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
+
+  // --- INDEXES FOR CLASS LOOKUPS ---
+  @@index([gradeId])       // For grouping classes by grade
+  @@index([supervisorId])  // For fetching a teacher's supervised class
 }
 
 model Subject {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  teachers Teacher[]
-  lessons  Lesson[]
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  teachers  Teacher[]
+  lessons   Lesson[]
 }
 
 model Lesson {
-  id        Int      @id @default(autoincrement())
-  name      String
-  day       Day
-  startTime DateTime
-  endTime   DateTime
+  id            Int          @id @default(autoincrement())
+  name          String
+  day           Day
+  startTime     DateTime
+  endTime       DateTime
 
-  subjectId   Int
-  subject     Subject      @relation(fields: [subjectId], references: [id])
-  classId     Int
-  class       Class        @relation(fields: [classId], references: [id])
-  teacherId   String
-  teacher     Teacher      @relation(fields: [teacherId], references: [id])
-  exams       Exam[]
-  assignments Assignment[]
-  attendances Attendance[]
+  subjectId     Int
+  subject       Subject      @relation(fields: [subjectId], references: [id])
+  classId       Int
+  class         Class        @relation(fields: [classId], references: [id])
+  teacherId     String
+  teacher       Teacher      @relation(fields: [teacherId], references: [id])
+  exams         Exam[]
+  assignments   Assignment[]
+  attendances   Attendance[]
+
+  // --- INDEXES FOR TIMETABLE QUERIES ---
+  @@index([classId, day])  // CRUCIAL: Quick lookup for a class's timetable on a specific day
+  @@index([teacherId])     // Quick lookup for a teacher's schedule
+  @@index([subjectId])
 }
 
 model Exam {
-  id        Int      @id @default(autoincrement())
-  title     String
-  startTime DateTime
-  endTime   DateTime
+  id          Int      @id @default(autoincrement())
+  title       String
+  startTime   DateTime
+  endTime     DateTime
 
-  lessonId Int
-  lesson   Lesson   @relation(fields: [lessonId], references: [id])
-  results  Result[]
+  lessonId    Int
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  results     Result[]
+
+  @@index([lessonId])
 }
 
 model Assignment {
-  id        Int      @id @default(autoincrement())
-  title     String
-  startDate DateTime
-  dueDate   DateTime
+  id          Int      @id @default(autoincrement())
+  title       String
+  startDate   DateTime
+  dueDate     DateTime
 
-  lessonId Int
-  lesson   Lesson   @relation(fields: [lessonId], references: [id])
-  results  Result[]
+  lessonId    Int
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  results     Result[]
+
+  @@index([lessonId])
 }
 
 model Result {
-  id    Int @id @default(autoincrement())
-  score Int
+  id             Int          @id @default(autoincrement())
+  score          Int
 
-  examId       Int?
-  exam         Exam?       @relation(fields: [examId], references: [id])
-  assignmentId Int?
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
-  studentId    String
-  student      Student     @relation(fields: [studentId], references: [id])
+  examId         Int?
+  exam           Exam?        @relation(fields: [examId], references: [id])
+  assignmentId   Int?
+  assignment     Assignment?  @relation(fields: [assignmentId], references: [id])
+  studentId      String
+  student        Student      @relation(fields: [studentId], references: [id])
+
+  // --- INDEXES FOR ACADEMIC HISTORY LOOKUPS ---
+  @@index([studentId])      // CRUCIAL: Quickly pull up a student's full result history
+  @@index([examId])
+  @@index([assignmentId])
 }
 
 model Attendance {
-  id      Int      @id @default(autoincrement())
-  date    DateTime
-  present Boolean
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  present     Boolean
 
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id])
-  lessonId  Int
-  lesson    Lesson  @relation(fields: [lessonId], references: [id])
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id])
+  lessonId    Int
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+
+  // --- INDEXES FOR ATTENDANCE LOOKUPS ---
+  @@index([studentId, date]) // Quick check of a student's attendance on a specific day
+  @@index([lessonId])        // Quick check of attendance taken for a specific lesson
 }
 
 model Event {
@@ -166,8 +203,10 @@ model Event {
   startTime   DateTime
   endTime     DateTime
 
-  classId Int?
-  class   Class? @relation(fields: [classId], references: [id])
+  classId     Int?
+  class       Class?   @relation(fields: [classId], references: [id])
+
+  @@index([classId])
 }
 
 model Announcement {
@@ -176,8 +215,10 @@ model Announcement {
   description String
   date        DateTime
 
-  classId Int?
-  class   Class? @relation(fields: [classId], references: [id])
+  classId     Int?
+  class       Class?   @relation(fields: [classId], references: [id])
+
+  @@index([classId])
 }
 
 enum UserSex {
