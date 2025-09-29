@@ -12,7 +12,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "School Management System",
   description: "SMS by SoftHub@codewithujwal",
-  icon: "/logo.png",
+  icons: {
+    icon: "/logo.png", // <-- use 'icons', not 'icon'
+    apple: "/logo.png", // optional: for iOS devices
+  },
 };
 
 export default function RootLayout({
